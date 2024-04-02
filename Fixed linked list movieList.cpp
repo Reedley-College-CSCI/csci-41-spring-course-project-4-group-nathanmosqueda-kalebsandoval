@@ -186,6 +186,16 @@ void MovieList::modifyMovie() {
             cin >> current->rating;
             cin.ignore(); // Clear input buffer
 
+            do {
+                cout << "Enter new release year: ";
+                cin >> current->releaseYear;
+                cin.ignore(); // Clear input buffer
+
+                if (current->releaseYear < 1800 || current->releaseYear > 2100) {
+                    cout << "Invalid release year. Please enter a year between 1800 and 2100." << endl;
+                }
+            } while (current->releaseYear < 1800 || current->releaseYear > 2100);
+
             cout << "Enter new review: ";
             getline(cin, current->review);
 
@@ -201,6 +211,7 @@ void MovieList::modifyMovie() {
 
     saveDataToFile(); // Save updated data to file
 }
+
 
 void MovieList::displayMovieList() {
     Movie* current = head;
