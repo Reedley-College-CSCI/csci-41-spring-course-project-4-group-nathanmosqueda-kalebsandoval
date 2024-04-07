@@ -5,11 +5,6 @@
 
 using namespace std;
 
-
-
-Movie::Movie(string name, int rating, double releaseYear, string review)
-    : name(name), rating(rating), releaseYear(releaseYear), review(review), next(nullptr) {}
-
 MovieList::MovieList() : head(nullptr), tail(nullptr) {
     loadDataFromFile(); // Load data from file on object creation
 }
@@ -69,11 +64,13 @@ void MovieList::runMovieSystem() {
     } while (decision != 7); // Continue the loop until the user chooses to exit
 
     DWORD end = GetTickCount(); // Stop measuring time
-    DWORD elapsedTime = end - start; // Calculate elapsed time
+
+    DWORD elapsedTime = end - start;
     cout << "Elapsed time in runMovieSystem(): " << elapsedTime << " ms" << endl;
 }
 
 void MovieList::addMovie() {
+    DWORD start = GetTickCount();
     string name, review;
     int rating;
     double releaseYear;
@@ -120,9 +117,15 @@ void MovieList::addMovie() {
     }
 
     saveDataToFile(); // Save updated data to file
+    DWORD end = GetTickCount(); // Stop measuring time
+    DWORD elapsedTime = end - start; // Calculate elapsed time
+    cout << "Time taken to add movie: " << elapsedTime << " ms" << endl;
+
+    cout << "Movie Added successfully. Big O: O(1)" << endl;
 }
 
 void MovieList::removeMovie() {
+    DWORD start = GetTickCount();
     if (head == nullptr) {
         cout << "Movie list is empty." << endl;
         return;
@@ -164,9 +167,15 @@ void MovieList::removeMovie() {
     }
 
     saveDataToFile(); // Save updated data to file
+    DWORD end = GetTickCount(); // Stop measuring time
+    DWORD elapsedTime = end - start; // Calculate elapsed time
+    cout << "Time remove movie: " << elapsedTime << " ms" << endl;
+
+    cout << "Movie removed successfully. Big O: O(n)" << endl;
 }
 
 void MovieList::modifyMovie() {
+    DWORD start = GetTickCount();
     if (head == nullptr) {
         cout << "Movie list is empty." << endl;
         return;
@@ -203,6 +212,7 @@ void MovieList::modifyMovie() {
             break;
         }
         current = current->next;
+
     }
 
     if (!found) {
@@ -210,10 +220,16 @@ void MovieList::modifyMovie() {
     }
 
     saveDataToFile(); // Save updated data to file
+    DWORD end = GetTickCount(); // Stop measuring time
+    DWORD elapsedTime = end - start; // Calculate elapsed time
+    cout << "Time taken to modify movie: " << elapsedTime << " ms" << endl;
+
+    cout << "Movie Modified successfully. Big O: O(n)" << endl;
 }
 
 
 void MovieList::displayMovieList() {
+    DWORD start = GetTickCount();
     Movie* current = head;
 
     if (current == nullptr) {
@@ -222,6 +238,7 @@ void MovieList::displayMovieList() {
     }
 
     cout << "Movie List:" << endl;
+    mergeSortWrapperAsc();
     while (current != nullptr) {
         cout << "Name: " << current->name << endl;
         cout << "Rating: " << current->rating << endl;
@@ -229,9 +246,81 @@ void MovieList::displayMovieList() {
         cout << "Review: " << current->review << endl << endl;
         current = current->next;
     }
+    DWORD end = GetTickCount(); // Stop measuring time
+    DWORD elapsedTime = end - start; // Calculate elapsed time
+    cout << "Time taken to display list: " << elapsedTime << " ms" << endl;
+
+    cout << "List displayed successfully. Big O: O(n log n)" << endl;
+}
+void MovieList::mergeSortAsc(int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+
+        mergeSortAsc(left, mid);
+        mergeSortAsc(mid + 1, right);
+
+        mergeAsc(left, mid, right);
+    }
 }
 
+void MovieList::mergeAsc(int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    Movie* leftArray = new Movie[n1];
+    Movie* rightArray = new Movie[n2];
+
+    // Populate leftArray
+    Movie* current = head;
+    for (int i = 0; i < n1; i++) {
+        leftArray[i] = *current;
+        current = current->next;
+    }
+
+    // Populate rightArray
+    for (int j = 0; j < n2; j++) {
+        rightArray[j] = *current;
+        current = current->next;
+    }
+
+    int i = 0;
+    int j = 0;
+    int k = left;
+
+    while (i < n1 && j < n2) {
+        if (leftArray[i].name <= rightArray[j].name) {
+            current[k] = leftArray[i];
+            i++;
+        }
+        else {
+            current[k] = rightArray[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy remaining elements of leftArray, if any
+    while (i < n1) {
+        current[k] = leftArray[i];
+        i++;
+        k++;
+    }
+
+    
+    while (j < n2) {
+        current[k] = rightArray[j];
+        j++;
+        k++;
+    }
+
+    delete[] leftArray;
+    delete[] rightArray;
+}
+void MovieList::mergeSortWrapperAsc() {
+    mergeSortAsc(0, pos - 1);
+}
 void MovieList::displayMoviesInRange() {
+    DWORD start = GetTickCount();
     double startYear, endYear;
 
     cout << "Enter start year: ";
@@ -257,9 +346,15 @@ void MovieList::displayMoviesInRange() {
     if (!found) {
         cout << "No movies found in the specified range." << endl;
     }
+    DWORD end = GetTickCount(); // Stop measuring time
+    DWORD elapsedTime = end - start; // Calculate elapsed time
+    cout << "Time taken to display movies in range: " << elapsedTime << " ms" << endl;
+
+    cout << "Movies in range displayed successfully.Big O: O(n)" << endl;
 }
 
 void MovieList::searchMovie() {
+    DWORD start = GetTickCount();
     string name;
 
     cout << "Enter the name of the movie you want to search: ";
@@ -283,6 +378,10 @@ void MovieList::searchMovie() {
     if (!found) {
         cout << "Movie not found in the list." << endl;
     }
+    DWORD end = GetTickCount(); // Stop measuring time
+    DWORD elapsedTime = end - start; // Calculate elapsed time
+    cout << "Time taken to search movie: " << elapsedTime << " ms" << endl;
+    cout << "Movie search completed successfully. Big O: O(n)" << endl;
 }
 
 void MovieList::saveDataToFile() {
