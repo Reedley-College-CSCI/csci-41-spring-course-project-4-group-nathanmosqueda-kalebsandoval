@@ -230,95 +230,101 @@ void MovieList::modifyMovie() {
 
 void MovieList::displayMovieList() {
     DWORD start = GetTickCount();
+    sortMovies();
+    int sortedCount = 0;
     Movie* current = head;
 
     if (current == nullptr) {
         cout << "Movie list is empty." << endl;
         return;
     }
-
+   
     cout << "Movie List:" << endl;
-    mergeSortWrapperAsc();
-    while (current != nullptr) {
+
+    int count = 0; // Counter to limit the number of displayed movies
+    const int MAX_DISPLAY = 100; // Maximum number of movies to display
+    while (current != nullptr && count < MAX_DISPLAY) {
         cout << "Name: " << current->name << endl;
         cout << "Rating: " << current->rating << endl;
         cout << "Release Year: " << current->releaseYear << endl;
         cout << "Review: " << current->review << endl << endl;
         current = current->next;
+        count++;
     }
+
+    if (count >= MAX_DISPLAY) {
+        cout << "Display limit reached. There may be more movies in the list." << endl;
+    }
+
     DWORD end = GetTickCount(); // Stop measuring time
     DWORD elapsedTime = end - start; // Calculate elapsed time
     cout << "Time taken to display list: " << elapsedTime << " ms" << endl;
 
     cout << "List displayed successfully. Big O: O(n log n)" << endl;
 }
-void MovieList::mergeSortAsc(int left, int right) {
-    if (left < right) {
-        int mid = left + (right - left) / 2;
 
-        mergeSortAsc(left, mid);
-        mergeSortAsc(mid + 1, right);
+// Function to merge two sorted linked lists
+Movie* merge(Movie* left, Movie* right) {
+    // If either of the lists is empty, return the other one
+    if (left == nullptr) return right;
+    if (right == nullptr) return left;
 
-        mergeAsc(left, mid, right);
+    // Merge the two lists recursively
+    Movie* result;
+    if (left->name <= right->name) {
+        result = left;
+        result->next = merge(left->next, right);
     }
+    else {
+        result = right;
+        result->next = merge(left, right->next);
+    }
+    return result;
 }
 
-void MovieList::mergeAsc(int left, int mid, int right) {
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
-
-    Movie* leftArray = new Movie[n1];
-    Movie* rightArray = new Movie[n2];
-
-    // Populate leftArray
-    Movie* current = head;
-    for (int i = 0; i < n1; i++) {
-        leftArray[i] = *current;
-        current = current->next;
+// Function to split the linked list into two halves
+void split(Movie* source, Movie** front, Movie** back) {
+    if (source == nullptr || source->next == nullptr) {
+        *front = source;
+        *back = nullptr;
+        return;
     }
 
-    // Populate rightArray
-    for (int j = 0; j < n2; j++) {
-        rightArray[j] = *current;
-        current = current->next;
-    }
+    Movie* slow = source;
+    Movie* fast = source->next;
 
-    int i = 0;
-    int j = 0;
-    int k = left;
-
-    while (i < n1 && j < n2) {
-        if (leftArray[i].name <= rightArray[j].name) {
-            current[k] = leftArray[i];
-            i++;
+    while (fast != nullptr) {
+        fast = fast->next;
+        if (fast != nullptr) {
+            slow = slow->next;
+            fast = fast->next;
         }
-        else {
-            current[k] = rightArray[j];
-            j++;
-        }
-        k++;
     }
 
-    // Copy remaining elements of leftArray, if any
-    while (i < n1) {
-        current[k] = leftArray[i];
-        i++;
-        k++;
-    }
-
-    
-    while (j < n2) {
-        current[k] = rightArray[j];
-        j++;
-        k++;
-    }
-
-    delete[] leftArray;
-    delete[] rightArray;
+    *front = source;
+    *back = slow->next;
+    slow->next = nullptr;
 }
-void MovieList::mergeSortWrapperAsc() {
-    mergeSortAsc(0, pos - 1);
+
+// Merge sort for linked list
+void mergeSort(Movie** headRef) {
+    Movie* head = *headRef;
+    if (head == nullptr || head->next == nullptr) return;
+
+    Movie* front;
+    Movie* back;
+    split(head, &front, &back);
+
+    mergeSort(&front);
+    mergeSort(&back);
+
+    *headRef = merge(front, back);
 }
+
+void MovieList::sortMovies() {
+    mergeSort(&head);
+}
+
 void MovieList::displayMoviesInRange() {
     DWORD start = GetTickCount();
     double startYear, endYear;
