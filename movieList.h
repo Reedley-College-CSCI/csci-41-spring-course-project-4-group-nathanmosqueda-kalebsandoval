@@ -15,10 +15,10 @@ struct Movie {
     // Default constructor
  Movie() : rating(0), releaseYear(0), next(nullptr) {}
 
+    // Parameterized constructor
  Movie(string name, int rating, double releaseYear, string review)
         : name(name), rating(rating), releaseYear(releaseYear), review(review), next(nullptr) {}
 
-    Movie(string name, int rating, double releaseYear, string review);
 };
 
 class MovieList {
@@ -31,19 +31,15 @@ public:
     void removeMovie();
     void modifyMovie();
     void displayMovieList();
-    void mergeSortAsc(int, int);
-    void mergeAsc(int, int, int);
-    void mergeSortWrapperAsc();
     void displayMoviesInRange();
     void searchMovie();
     void saveDataToFile();
     void loadDataFromFile();
+    void sortMovies();
 
 private:
     Movie* head;
     Movie* tail;
    
-
-    
-  
+   
 };
